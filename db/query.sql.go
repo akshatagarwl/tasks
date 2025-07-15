@@ -37,15 +37,23 @@ FROM tasks
 WHERE (cardinality(COALESCE($1::uuid[], '{}')) = 0 OR id = ANY($1::uuid[]))
   AND (cardinality(COALESCE($2::task_status[], '{}')) = 0 OR status = ANY($2::task_status[]))
 ORDER BY id
+LIMIT $3 OFFSET $4
 `
 
 type GetTasksFilteredParams struct {
 	Column1 []uuid.UUID
 	Column2 []string
+	Limit   int32
+	Offset  int32
 }
 
 func (q *Queries) GetTasksFiltered(ctx context.Context, arg GetTasksFilteredParams) ([]DMTask, error) {
-	rows, err := q.db.Query(ctx, getTasksFiltered, arg.Column1, arg.Column2)
+	rows, err := q.db.Query(ctx, getTasksFiltered,
+		arg.Column1,
+		arg.Column2,
+		arg.Limit,
+		arg.Offset,
+	)
 	if err != nil {
 		return nil, err
 	}

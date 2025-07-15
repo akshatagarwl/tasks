@@ -68,6 +68,8 @@ func (h *TaskHandler) createTask(c *fiber.Ctx) error {
 func (h *TaskHandler) getTasks(c *fiber.Ctx) error {
 	idsParam := c.Query("ids")
 	statusesParam := c.Query("statuses")
+	page := c.QueryInt("page", 1)
+	pageSize := c.QueryInt("pageSize", 10)
 
 	var ids []uuid.UUID
 	if idsParam != "" {
@@ -92,7 +94,7 @@ func (h *TaskHandler) getTasks(c *fiber.Ctx) error {
 	}
 
 	ctx := context.Background()
-	smTasks, err := h.svc.GetTasks(ctx, ids, statuses)
+	smTasks, err := h.svc.GetTasks(ctx, ids, statuses, page, pageSize)
 	if err != nil {
 		return fiber.NewError(http.StatusInternalServerError, err.Error())
 	}

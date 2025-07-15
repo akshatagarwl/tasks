@@ -10,7 +10,7 @@ import (
 )
 
 type TaskService interface {
-	GetTasks(ctx context.Context, ids []uuid.UUID, statuses []SMTaskStatus) ([]*SMTask, error)
+	GetTasks(ctx context.Context, ids []uuid.UUID, statuses []SMTaskStatus, page, pageSize int) ([]*SMTask, error)
 	CreateTask(ctx context.Context, title string, description *string, status *SMTaskStatus) (*SMTask, error)
 }
 
@@ -22,15 +22,19 @@ func NewTaskService(repo *db.TaskRepository) TaskService {
 	return &taskService{repo: repo}
 }
 
-func (s *taskService) GetTasks(ctx context.Context, ids []uuid.UUID, statuses []SMTaskStatus) ([]*SMTask, error) {
+func (s *taskService) GetTasks(ctx context.Context, ids []uuid.UUID, statuses []SMTaskStatus, page, pageSize int) ([]*SMTask, error) {
 	var stringStatuses []string
 	for _, st := range statuses {
 		stringStatuses = append(stringStatuses, string(st))
 	}
 
+	offset := (page - 1) * pageSize
+
 	dmTasks, err := s.repo.Queries.GetTasksFiltered(ctx, db.GetTasksFilteredParams{
 		Column1: ids,
 		Column2: stringStatuses,
+		Limit:   int32(pageSize),
+		Offset:  int32(offset),
 	})
 	if err != nil {
 		return nil, err
