@@ -13,9 +13,14 @@ sql:
           task_status: "DMTaskStatus"
         overrides:
           - db_type: "uuid"
-            nullable: false
             go_type:
               import: "github.com/google/uuid"
               type: "UUID"
           - db_type: "task_status"
+            nullable: false
             go_type: "string"
+          - db_type: "task_status"
+            nullable: true
+            go_type:
+              type: "string"
+              pointer: true

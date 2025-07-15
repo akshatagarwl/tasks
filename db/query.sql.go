@@ -31,6 +31,16 @@ func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (uuid.UU
 	return id, err
 }
 
+const deleteTask = `-- name: DeleteTask :exec
+DELETE FROM tasks
+WHERE id = $1
+`
+
+func (q *Queries) DeleteTask(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteTask, id)
+	return err
+}
+
 const getTasksFiltered = `-- name: GetTasksFiltered :many
 SELECT id, title, description, status
 FROM tasks
@@ -75,4 +85,38 @@ func (q *Queries) GetTasksFiltered(ctx context.Context, arg GetTasksFilteredPara
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateTask = `-- name: UpdateTask :one
+UPDATE tasks
+SET
+  title = COALESCE($1, title),
+  description = COALESCE($2, description),
+  status = COALESCE($3, status)
+WHERE id = $4
+RETURNING id, title, description, status
+`
+
+type UpdateTaskParams struct {
+	Title       pgtype.Text
+	Description pgtype.Text
+	Status      *string
+	ID          uuid.UUID
+}
+
+func (q *Queries) UpdateTask(ctx context.Context, arg UpdateTaskParams) (DMTask, error) {
+	row := q.db.QueryRow(ctx, updateTask,
+		arg.Title,
+		arg.Description,
+		arg.Status,
+		arg.ID,
+	)
+	var i DMTask
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Description,
+		&i.Status,
+	)
+	return i, err
 }

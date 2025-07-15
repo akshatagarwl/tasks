@@ -20,18 +20,14 @@ func NewTaskHandler(svc service.TaskService) *TaskHandler {
 }
 
 func (h *TaskHandler) Register(app *fiber.App) {
-	app.Post("/task", h.createTask)
 	app.Get("/tasks", h.getTasks)
-}
-
-type taskRequest struct {
-	Title       string  `json:"title" validate:"required"`
-	Description *string `json:"description,omitempty"`
-	Status      *string `json:"status,omitempty"`
+	app.Post("/task", h.createTask)
+	app.Put("/task/:id", h.updateTask)
+	app.Delete("/task/:id", h.deleteTask)
 }
 
 func (h *TaskHandler) createTask(c *fiber.Ctx) error {
-	var req taskRequest
+	var req AMCreateTaskRequest
 	if err := c.BodyParser(&req); err != nil {
 		return fiber.NewError(http.StatusBadRequest, "invalid request body")
 	}
@@ -55,7 +51,7 @@ func (h *TaskHandler) createTask(c *fiber.Ctx) error {
 		return fiber.NewError(http.StatusInternalServerError, err.Error())
 	}
 
-	amTask := AMTask{
+	amTask := AMTaskResponse{
 		ID:          smTask.ID.String(),
 		Title:       smTask.Title,
 		Description: smTask.Description,
@@ -63,6 +59,44 @@ func (h *TaskHandler) createTask(c *fiber.Ctx) error {
 	}
 
 	return c.Status(http.StatusCreated).JSON(amTask)
+}
+
+func (h *TaskHandler) updateTask(c *fiber.Ctx) error {
+	idParam := c.Params("id")
+	id, err := uuid.Parse(idParam)
+	if err != nil {
+		return fiber.NewError(http.StatusBadRequest, "Invalid UUID format")
+	}
+
+	var req AMUpdateTaskRequest
+	if err := c.BodyParser(&req); err != nil {
+		return fiber.NewError(http.StatusBadRequest, "Invalid request body")
+	}
+
+	if req.Title == nil && req.Description == nil && req.Status == nil {
+		return fiber.NewError(http.StatusBadRequest, "At least one field must be provided for update")
+	}
+
+	task, err := h.svc.UpdateTask(c.Context(), id, req.Title, req.Description, req.Status)
+	if err != nil {
+		return fiber.NewError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(task)
+}
+
+func (h *TaskHandler) deleteTask(c *fiber.Ctx) error {
+	idParam := c.Params("id")
+	id, err := uuid.Parse(idParam)
+	if err != nil {
+		return fiber.NewError(http.StatusBadRequest, "Invalid UUID format")
+	}
+
+	if err := h.svc.DeleteTask(c.Context(), id); err != nil {
+		return fiber.NewError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.SendStatus(http.StatusNoContent)
 }
 
 func (h *TaskHandler) getTasks(c *fiber.Ctx) error {
@@ -99,9 +133,9 @@ func (h *TaskHandler) getTasks(c *fiber.Ctx) error {
 		return fiber.NewError(http.StatusInternalServerError, err.Error())
 	}
 
-	amTasks := make([]AMTask, 0, len(smTasks))
+	amTasks := make([]AMTaskResponse, 0, len(smTasks))
 	for _, t := range smTasks {
-		amTasks = append(amTasks, AMTask{
+		amTasks = append(amTasks, AMTaskResponse{
 			ID:          t.ID.String(),
 			Title:       t.Title,
 			Description: t.Description,
