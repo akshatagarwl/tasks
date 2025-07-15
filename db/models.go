@@ -11,52 +11,52 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type TaskStatus string
+type DMTaskStatus string
 
 const (
-	TaskStatusPENDING    TaskStatus = "PENDING"
-	TaskStatusINPROGRESS TaskStatus = "IN_PROGRESS"
-	TaskStatusCOMPLETED  TaskStatus = "COMPLETED"
+	TaskStatusPENDING    DMTaskStatus = "PENDING"
+	TaskStatusINPROGRESS DMTaskStatus = "IN_PROGRESS"
+	TaskStatusCOMPLETED  DMTaskStatus = "COMPLETED"
 )
 
-func (e *TaskStatus) Scan(src interface{}) error {
+func (e *DMTaskStatus) Scan(src interface{}) error {
 	switch s := src.(type) {
 	case []byte:
-		*e = TaskStatus(s)
+		*e = DMTaskStatus(s)
 	case string:
-		*e = TaskStatus(s)
+		*e = DMTaskStatus(s)
 	default:
-		return fmt.Errorf("unsupported scan type for TaskStatus: %T", src)
+		return fmt.Errorf("unsupported scan type for DMTaskStatus: %T", src)
 	}
 	return nil
 }
 
-type NullTaskStatus struct {
-	TaskStatus TaskStatus
-	Valid      bool // Valid is true if TaskStatus is not NULL
+type NullDMTaskStatus struct {
+	DMTaskStatus DMTaskStatus
+	Valid        bool // Valid is true if DMTaskStatus is not NULL
 }
 
 // Scan implements the Scanner interface.
-func (ns *NullTaskStatus) Scan(value interface{}) error {
+func (ns *NullDMTaskStatus) Scan(value interface{}) error {
 	if value == nil {
-		ns.TaskStatus, ns.Valid = "", false
+		ns.DMTaskStatus, ns.Valid = "", false
 		return nil
 	}
 	ns.Valid = true
-	return ns.TaskStatus.Scan(value)
+	return ns.DMTaskStatus.Scan(value)
 }
 
 // Value implements the driver Valuer interface.
-func (ns NullTaskStatus) Value() (driver.Value, error) {
+func (ns NullDMTaskStatus) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
 	}
-	return string(ns.TaskStatus), nil
+	return string(ns.DMTaskStatus), nil
 }
 
-type Task struct {
+type DMTask struct {
 	ID          pgtype.UUID
 	Title       string
 	Description pgtype.Text
-	Status      TaskStatus
+	Status      DMTaskStatus
 }

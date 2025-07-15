@@ -8,3 +8,6 @@ sql:
         package: "db"
         out: "db"
         sql_package: "pgx/v5"
+        rename:
+          task: "DMTask"
+          task_status: "DMTaskStatus"

@@ -2,14 +2,14 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 
+	"github.com/akshatagarwl/tasks/api"
 	"github.com/akshatagarwl/tasks/db"
+	"github.com/akshatagarwl/tasks/service"
 
 	"github.com/caarlos0/env/v11"
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/gofiber/fiber/v2"
 )
 
 type config struct {
@@ -18,6 +18,7 @@ type config struct {
 	DBUser     string `env:"DB_USER,required"`
 	DBPassword string `env:"DB_PASSWORD,required"`
 	DBName     string `env:"DB_NAME,required"`
+	ServerPort string `env:"SERVER_PORT" envDefault:"8080"`
 }
 
 func main() {
@@ -29,25 +30,22 @@ func main() {
 		return
 	}
 
-	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPassword, cfg.DBName)
-
-	conn, err := pgx.Connect(ctx, connStr)
+	repo, err := db.NewTaskRepository(ctx, cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPassword, cfg.DBName)
 	if err != nil {
 		slog.Error("failed to connect to database", "error", err)
 		return
 	}
-	defer conn.Close(ctx)
+	defer repo.Close(ctx)
 
-	queries := db.New(conn)
+	svc := service.NewTaskService(repo)
+	handler := api.NewTaskHandler(svc)
 
-	_, err = queries.CreateTask(ctx, db.CreateTaskParams{
-		Title:       "implement service layer",
-		Description: pgtype.Text{String: "Once the repository layer has been implemented. Implement the Service Layer.", Valid: true},
-		Status:      "PENDING",
-	})
-	if err != nil {
-		slog.Error("failed to create task", "error", err)
-		return
+	app := fiber.New()
+	handler.Register(app)
+
+	addr := ":" + cfg.ServerPort
+	slog.Info("Starting server", "addr", addr)
+	if err := app.Listen(addr); err != nil {
+		slog.Error("failed to start server", "error", err)
 	}
 }

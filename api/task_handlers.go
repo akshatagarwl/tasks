@@ -1,0 +1,63 @@
+package api
+
+import (
+	"context"
+	"net/http"
+
+	"github.com/akshatagarwl/tasks/service"
+
+	"github.com/gofiber/fiber/v2"
+)
+
+type TaskHandler struct {
+	svc service.TaskService
+}
+
+func NewTaskHandler(svc service.TaskService) *TaskHandler {
+	return &TaskHandler{svc: svc}
+}
+
+func (h *TaskHandler) Register(app *fiber.App) {
+	app.Post("/task", h.createTask)
+}
+
+type taskRequest struct {
+	Title       string  `json:"title" validate:"required"`
+	Description *string `json:"description,omitempty"`
+	Status      *string `json:"status,omitempty"`
+}
+
+func (h *TaskHandler) createTask(c *fiber.Ctx) error {
+	var req taskRequest
+	if err := c.BodyParser(&req); err != nil {
+		return fiber.NewError(http.StatusBadRequest, "invalid request body")
+	}
+
+	if req.Title == "" {
+		return fiber.NewError(http.StatusBadRequest, "title is required")
+	}
+
+	var statusPtr *service.SMTaskStatus
+	if req.Status != nil {
+		st := service.SMTaskStatus(*req.Status)
+		if !st.IsValid() {
+			return fiber.NewError(http.StatusBadRequest, "invalid status value")
+		}
+		statusPtr = &st
+	}
+
+	ctx := context.Background()
+	smTask, err := h.svc.CreateTask(ctx, req.Title, req.Description, statusPtr)
+	if err != nil {
+		return fiber.NewError(http.StatusInternalServerError, err.Error())
+	}
+
+	amTask := AMTask{
+		ID:          smTask.ID.String(),
+		Title:       smTask.Title,
+		Description: smTask.Description,
+		Status:      string(smTask.Status),
+	}
+
+	return c.Status(http.StatusCreated).JSON(amTask)
+}

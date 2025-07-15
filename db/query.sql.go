@@ -20,7 +20,7 @@ RETURNING id
 type CreateTaskParams struct {
 	Title       string
 	Description pgtype.Text
-	Status      TaskStatus
+	Status      DMTaskStatus
 }
 
 func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (pgtype.UUID, error) {
