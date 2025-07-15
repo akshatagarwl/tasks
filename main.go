@@ -5,26 +5,17 @@ import (
 	"log/slog"
 
 	"github.com/akshatagarwl/tasks/api"
+	"github.com/akshatagarwl/tasks/config"
 	"github.com/akshatagarwl/tasks/db"
 	"github.com/akshatagarwl/tasks/service"
 
-	"github.com/caarlos0/env/v11"
 	"github.com/gofiber/fiber/v2"
 )
-
-type config struct {
-	DBHost     string `env:"DB_HOST,required"`
-	DBPort     int    `env:"DB_PORT,required"`
-	DBUser     string `env:"DB_USER,required"`
-	DBPassword string `env:"DB_PASSWORD,required"`
-	DBName     string `env:"DB_NAME,required"`
-	ServerPort string `env:"SERVER_PORT" envDefault:"8080"`
-}
 
 func main() {
 	ctx := context.Background()
 
-	cfg, err := env.ParseAs[config]()
+	cfg, err := config.Load()
 	if err != nil {
 		slog.Error("failed to parse config", "error", err)
 		return
