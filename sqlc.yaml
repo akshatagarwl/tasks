@@ -11,3 +11,11 @@ sql:
         rename:
           task: "DMTask"
           task_status: "DMTaskStatus"
+        overrides:
+          - db_type: "uuid"
+            nullable: false
+            go_type:
+              import: "github.com/google/uuid"
+              type: "UUID"
+          - db_type: "task_status"
+            go_type: "string"

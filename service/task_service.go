@@ -10,6 +10,7 @@ import (
 )
 
 type TaskService interface {
+	GetTasks(ctx context.Context, ids []uuid.UUID, statuses []SMTaskStatus) ([]*SMTask, error)
 	CreateTask(ctx context.Context, title string, description *string, status *SMTaskStatus) (*SMTask, error)
 }
 
@@ -19,6 +20,37 @@ type taskService struct {
 
 func NewTaskService(repo *db.TaskRepository) TaskService {
 	return &taskService{repo: repo}
+}
+
+func (s *taskService) GetTasks(ctx context.Context, ids []uuid.UUID, statuses []SMTaskStatus) ([]*SMTask, error) {
+	var stringStatuses []string
+	for _, st := range statuses {
+		stringStatuses = append(stringStatuses, string(st))
+	}
+
+	dmTasks, err := s.repo.Queries.GetTasksFiltered(ctx, db.GetTasksFilteredParams{
+		Column1: ids,
+		Column2: stringStatuses,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	tasks := make([]*SMTask, 0, len(dmTasks))
+	for _, d := range dmTasks {
+		var descPtr *string
+		if d.Description.Valid {
+			descPtr = &d.Description.String
+		}
+		t := &SMTask{
+			ID:          d.ID,
+			Title:       d.Title,
+			Description: descPtr,
+			Status:      SMTaskStatus(d.Status),
+		}
+		tasks = append(tasks, t)
+	}
+	return tasks, nil
 }
 
 func (s *taskService) CreateTask(ctx context.Context, title string, description *string, status *SMTaskStatus) (*SMTask, error) {
@@ -35,15 +67,13 @@ func (s *taskService) CreateTask(ctx context.Context, title string, description 
 	params := db.CreateTaskParams{
 		Title:       title,
 		Description: desc,
-		Status:      db.DMTaskStatus(st),
+		Status:      string(st),
 	}
 
-	pgID, err := s.repo.Queries.CreateTask(ctx, params)
+	id, err := s.repo.Queries.CreateTask(ctx, params)
 	if err != nil {
 		return nil, err
 	}
-
-	id := uuid.UUID(pgID.Bytes)
 
 	task := &SMTask{
 		ID:          id,

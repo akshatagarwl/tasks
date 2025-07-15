@@ -11,10 +11,10 @@ const (
 )
 
 type SMTask struct {
-	ID          uuid.UUID    `json:"id"`
-	Title       string       `json:"title"`
-	Description *string      `json:"description,omitempty"`
-	Status      SMTaskStatus `json:"status"`
+	ID          uuid.UUID
+	Title       string
+	Description *string
+	Status      SMTaskStatus
 }
 
 func (s SMTaskStatus) IsValid() bool {

@@ -8,6 +8,7 @@ package db
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -20,12 +21,50 @@ RETURNING id
 type CreateTaskParams struct {
 	Title       string
 	Description pgtype.Text
-	Status      DMTaskStatus
+	Status      string
 }
 
-func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (pgtype.UUID, error) {
+func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (uuid.UUID, error) {
 	row := q.db.QueryRow(ctx, createTask, arg.Title, arg.Description, arg.Status)
-	var id pgtype.UUID
+	var id uuid.UUID
 	err := row.Scan(&id)
 	return id, err
+}
+
+const getTasksFiltered = `-- name: GetTasksFiltered :many
+SELECT id, title, description, status
+FROM tasks
+WHERE (cardinality(COALESCE($1::uuid[], '{}')) = 0 OR id = ANY($1::uuid[]))
+  AND (cardinality(COALESCE($2::task_status[], '{}')) = 0 OR status = ANY($2::task_status[]))
+ORDER BY id
+`
+
+type GetTasksFilteredParams struct {
+	Column1 []uuid.UUID
+	Column2 []string
+}
+
+func (q *Queries) GetTasksFiltered(ctx context.Context, arg GetTasksFilteredParams) ([]DMTask, error) {
+	rows, err := q.db.Query(ctx, getTasksFiltered, arg.Column1, arg.Column2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []DMTask
+	for rows.Next() {
+		var i DMTask
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.Description,
+			&i.Status,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
