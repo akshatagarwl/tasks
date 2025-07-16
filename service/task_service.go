@@ -53,6 +53,7 @@ func (s *taskService) GetTasks(ctx context.Context, ids []uuid.UUID, statuses []
 			Title:       d.Title,
 			Description: descPtr,
 			Status:      SMTaskStatus(d.Status),
+			CreatedAt:   d.CreatedAt.Time,
 		}
 		tasks = append(tasks, t)
 	}
@@ -76,16 +77,17 @@ func (s *taskService) CreateTask(ctx context.Context, title string, description 
 		Status:      string(st),
 	}
 
-	id, err := s.repo.Queries.CreateTask(ctx, params)
+	dmTask, err := s.repo.Queries.CreateTask(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
 	task := &SMTask{
-		ID:          id,
-		Title:       title,
-		Description: description,
-		Status:      st,
+		ID:          dmTask.ID,
+		Title:       dmTask.Title,
+		Description: &dmTask.Description.String,
+		Status:      SMTaskStatus(dmTask.Status),
+		CreatedAt:   dmTask.CreatedAt.Time,
 	}
 	return task, nil
 }
@@ -126,6 +128,7 @@ func (s *taskService) UpdateTask(ctx context.Context, id uuid.UUID, title *strin
 		Title:       dmTask.Title,
 		Description: descPtr,
 		Status:      SMTaskStatus(dmTask.Status),
+		CreatedAt:   dmTask.CreatedAt.Time,
 	}
 
 	return task, nil

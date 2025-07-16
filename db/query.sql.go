@@ -15,7 +15,7 @@ import (
 const createTask = `-- name: CreateTask :one
 INSERT INTO tasks (title, description, status)
 VALUES ($1, $2, $3)
-RETURNING id
+RETURNING id, title, description, status, created_at
 `
 
 type CreateTaskParams struct {
@@ -24,11 +24,17 @@ type CreateTaskParams struct {
 	Status      string
 }
 
-func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (uuid.UUID, error) {
+func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (DMTask, error) {
 	row := q.db.QueryRow(ctx, createTask, arg.Title, arg.Description, arg.Status)
-	var id uuid.UUID
-	err := row.Scan(&id)
-	return id, err
+	var i DMTask
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Description,
+		&i.Status,
+		&i.CreatedAt,
+	)
+	return i, err
 }
 
 const deleteTask = `-- name: DeleteTask :exec
@@ -42,11 +48,11 @@ func (q *Queries) DeleteTask(ctx context.Context, id uuid.UUID) error {
 }
 
 const getTasksFiltered = `-- name: GetTasksFiltered :many
-SELECT id, title, description, status
+SELECT id, title, description, status, created_at
 FROM tasks
 WHERE (cardinality(COALESCE($1::uuid[], '{}')) = 0 OR id = ANY($1::uuid[]))
   AND (cardinality(COALESCE($2::task_status[], '{}')) = 0 OR status = ANY($2::task_status[]))
-ORDER BY id
+ORDER BY created_at
 LIMIT $3 OFFSET $4
 `
 
@@ -76,6 +82,7 @@ func (q *Queries) GetTasksFiltered(ctx context.Context, arg GetTasksFilteredPara
 			&i.Title,
 			&i.Description,
 			&i.Status,
+			&i.CreatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -94,7 +101,7 @@ SET
   description = COALESCE($2, description),
   status = COALESCE($3, status)
 WHERE id = $4
-RETURNING id, title, description, status
+RETURNING id, title, description, status, created_at
 `
 
 type UpdateTaskParams struct {
@@ -117,6 +124,7 @@ func (q *Queries) UpdateTask(ctx context.Context, arg UpdateTaskParams) (DMTask,
 		&i.Title,
 		&i.Description,
 		&i.Status,
+		&i.CreatedAt,
 	)
 	return i, err
 }

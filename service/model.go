@@ -1,6 +1,10 @@
 package service
 
-import "github.com/google/uuid"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type SMTaskStatus string
 
@@ -15,6 +19,7 @@ type SMTask struct {
 	Title       string
 	Description *string
 	Status      SMTaskStatus
+	CreatedAt   time.Time
 }
 
 func (s SMTaskStatus) IsValid() bool {

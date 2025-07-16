@@ -60,4 +60,5 @@ type DMTask struct {
 	Title       string
 	Description pgtype.Text
 	Status      string
+	CreatedAt   pgtype.Timestamptz
 }

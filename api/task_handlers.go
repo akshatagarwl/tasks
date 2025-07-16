@@ -56,6 +56,7 @@ func (h *TaskHandler) createTask(c *fiber.Ctx) error {
 		Title:       smTask.Title,
 		Description: smTask.Description,
 		Status:      string(smTask.Status),
+		CreatedAt:   smTask.CreatedAt,
 	}
 
 	return c.Status(http.StatusCreated).JSON(amTask)
@@ -82,7 +83,13 @@ func (h *TaskHandler) updateTask(c *fiber.Ctx) error {
 		return fiber.NewError(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(task)
+	return c.JSON(&AMTaskResponse{
+		ID:          task.ID.String(),
+		Title:       task.Title,
+		Description: task.Description,
+		Status:      string(task.Status),
+		CreatedAt:   task.CreatedAt,
+	})
 }
 
 func (h *TaskHandler) deleteTask(c *fiber.Ctx) error {
@@ -140,6 +147,7 @@ func (h *TaskHandler) getTasks(c *fiber.Ctx) error {
 			Title:       t.Title,
 			Description: t.Description,
 			Status:      string(t.Status),
+			CreatedAt:   t.CreatedAt,
 		})
 	}
 

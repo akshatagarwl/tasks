@@ -1,12 +1,17 @@
 package api
 
-import "github.com/akshatagarwl/tasks/service"
+import (
+	"time"
+
+	"github.com/akshatagarwl/tasks/service"
+)
 
 type AMTaskResponse struct {
-	ID          string  `json:"id"`
-	Title       string  `json:"title"`
-	Description *string `json:"description,omitempty"`
-	Status      string  `json:"status"`
+	ID          string    `json:"id"`
+	Title       string    `json:"title"`
+	Description *string   `json:"description,omitempty"`
+	Status      string    `json:"status"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 type AMUpdateTaskRequest struct {

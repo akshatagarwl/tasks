@@ -6,5 +6,6 @@ CREATE TABLE tasks (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title TEXT NOT NULL,
     description TEXT,
-    status task_status NOT NULL DEFAULT 'PENDING'
+    status task_status NOT NULL DEFAULT 'PENDING',
+    created_at timestamptz NOT NULL DEFAULT now()
 );
