@@ -1,0 +1,72 @@
+networks:
+  tasks-net:
+    driver: bridge
+
+volumes:
+  db-data:
+    driver: local
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=tasks
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - tasks-net
+
+  # atlas needs dev db for schema apply
+  dev-db:
+    image: postgres:17-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - tasks-net
+
+  migrate:
+    build:
+      context: .
+      dockerfile: atlas.Dockerfile
+    command: schema apply -u "postgres://postgres:postgres@db:5432/tasks?sslmode=disable" --dev-url "postgres://postgres:postgres@dev-db:5432/postgres?sslmode=disable" --to "file://schema.sql" --auto-approve
+    depends_on:
+      db:
+        condition: service_healthy
+      dev-db:
+        condition: service_healthy
+    networks:
+      - tasks-net
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=tasks
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    networks:
+      - tasks-net
