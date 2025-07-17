@@ -84,3 +84,4 @@ DB_PASSWORD=mysecretpassword DB_NAME=tdb go run main.go
 
 - Pagination: Uses an offset based pagination
 - Task Status as Enum in DB: This makes the schema migrations a bit more complex but suffices for now.
+- Horizontally Scalable: Demonstrated using App replicas in Docker Compose running behind an Nginx Load Balancer
