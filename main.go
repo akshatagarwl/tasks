@@ -10,6 +10,7 @@ import (
 	"github.com/akshatagarwl/tasks/service"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/swagger"
 
 	_ "github.com/akshatagarwl/tasks/docs"
@@ -43,6 +44,13 @@ func main() {
 
 	app := fiber.New()
 
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "https://tasks-api.akshat.dev,http://localhost:8080",
+		AllowMethods: "GET,POST,PUT,DELETE,OPTIONS",
+		AllowHeaders: "*",
+	}))
+
+	app.Get("/", swagger.HandlerDefault)
 	app.Get("/swagger/*", swagger.HandlerDefault)
 
 	handler.Register(app)
