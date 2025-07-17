@@ -21,7 +21,7 @@ func main() {
 		return
 	}
 
-	repo, err := db.NewTaskRepository(ctx, cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPassword, cfg.DBName)
+	repo, err := db.NewTaskRepository(ctx, cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPassword, cfg.DBName, cfg.DBSSLMode)
 	if err != nil {
 		slog.Error("failed to connect to database", "error", err)
 		return

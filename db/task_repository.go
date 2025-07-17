@@ -12,8 +12,8 @@ type TaskRepository struct {
 	Queries *Queries
 }
 
-func NewTaskRepository(ctx context.Context, host string, port int, user, password, dbname string) (*TaskRepository, error) {
-	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+func NewTaskRepository(ctx context.Context, host string, port int, user, password, dbname, sslmode string) (*TaskRepository, error) {
+	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s", host, port, user, password, dbname, sslmode)
 
 	conn, err := pgx.Connect(ctx, connStr)
 	if err != nil {

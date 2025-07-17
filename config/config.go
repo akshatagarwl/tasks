@@ -8,6 +8,7 @@ type Config struct {
 	DBUser     string `env:"DB_USER,required"`
 	DBPassword string `env:"DB_PASSWORD,required"`
 	DBName     string `env:"DB_NAME,required"`
+	DBSSLMode  string `env:"DB_SSLMODE" envDefault:"disable"`
 	ServerPort string `env:"SERVER_PORT" envDefault:"8080"`
 }
 
