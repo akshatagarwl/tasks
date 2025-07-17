@@ -7,6 +7,7 @@ import (
 	"github.com/akshatagarwl/tasks/api"
 	"github.com/akshatagarwl/tasks/config"
 	"github.com/akshatagarwl/tasks/db"
+	"github.com/akshatagarwl/tasks/docs"
 	"github.com/akshatagarwl/tasks/service"
 
 	"github.com/gofiber/fiber/v2"
@@ -20,8 +21,7 @@ import (
 // @version 1.0
 // @description A simple task management API with CRUD operations
 // @contact.name API Support
-// @contact.email support@example.com
-// @host localhost:8080
+// @contact.email hey@akshat.dev
 // @BasePath /
 func main() {
 	ctx := context.Background()
@@ -49,6 +49,7 @@ func main() {
 		AllowHeaders: "Origin, Content-Type, Accept",
 	}))
 
+	docs.SwaggerInfo.Host = cfg.Host
 	app.Get("/swagger/*", swagger.HandlerDefault)
 
 	handler.Register(app)

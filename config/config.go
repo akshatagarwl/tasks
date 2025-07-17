@@ -10,6 +10,7 @@ type Config struct {
 	DBName     string `env:"DB_NAME,required"`
 	DBSSLMode  string `env:"DB_SSLMODE" envDefault:"disable"`
 	ServerPort string `env:"SERVER_PORT" envDefault:"8080"`
+	Host       string `env:"HOST" envDefault:"localhost:8080"`
 }
 
 func Load() (*Config, error) {

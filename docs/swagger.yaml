@@ -88,7 +88,6 @@ definitions:
     - SMTaskStatusTodo
     - SMTaskStatusInProgress
     - SMTaskStatusCompleted
-host: localhost:8080
 info:
   contact:
     email: support@example.com
