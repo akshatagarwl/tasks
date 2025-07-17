@@ -29,6 +29,17 @@ func (h *TaskHandler) Register(app *fiber.App) {
 	app.Delete("/task/:id", h.deleteTask)
 }
 
+// CreateTask creates a new task
+// @Summary Create a new task
+// @Description Create a new task with title, description, and optional status
+// @Tags tasks
+// @Accept json
+// @Produce json
+// @Param task body AMCreateTaskRequest true "Task to create"
+// @Success 201 {object} AMTaskResponse
+// @Failure 400 {object} AMErrorResponse
+// @Failure 500 {object} AMErrorResponse
+// @Router /task [post]
 func (h *TaskHandler) createTask(c *fiber.Ctx) error {
 	var req AMCreateTaskRequest
 	if err := c.BodyParser(&req); err != nil {
@@ -66,6 +77,18 @@ func (h *TaskHandler) createTask(c *fiber.Ctx) error {
 	return c.Status(http.StatusCreated).JSON(amTask)
 }
 
+// UpdateTask updates an existing task
+// @Summary Update a task
+// @Description Update an existing task by ID
+// @Tags tasks
+// @Accept json
+// @Produce json
+// @Param id path string true "Task ID"
+// @Param task body AMUpdateTaskRequest true "Task update data"
+// @Success 200 {object} AMTaskResponse
+// @Failure 400 {object} AMErrorResponse
+// @Failure 500 {object} AMErrorResponse
+// @Router /task/{id} [put]
 func (h *TaskHandler) updateTask(c *fiber.Ctx) error {
 	idParam := c.Params("id")
 	id, err := uuid.Parse(idParam)
@@ -97,6 +120,15 @@ func (h *TaskHandler) updateTask(c *fiber.Ctx) error {
 	})
 }
 
+// DeleteTask deletes a task
+// @Summary Delete a task
+// @Description Delete a task by ID
+// @Tags tasks
+// @Param id path string true "Task ID"
+// @Success 204
+// @Failure 400 {object} AMErrorResponse
+// @Failure 500 {object} AMErrorResponse
+// @Router /task/{id} [delete]
 func (h *TaskHandler) deleteTask(c *fiber.Ctx) error {
 	idParam := c.Params("id")
 	id, err := uuid.Parse(idParam)
@@ -111,6 +143,16 @@ func (h *TaskHandler) deleteTask(c *fiber.Ctx) error {
 	return c.SendStatus(http.StatusNoContent)
 }
 
+// GetTaskByID retrieves a task by ID
+// @Summary Get a task by ID
+// @Description Retrieve a single task by its ID
+// @Tags tasks
+// @Produce json
+// @Param id path string true "Task ID"
+// @Success 200 {object} AMTaskResponse
+// @Failure 400 {object} AMErrorResponse
+// @Failure 500 {object} AMErrorResponse
+// @Router /task/{id} [get]
 func (h *TaskHandler) getTaskByID(c *fiber.Ctx) error {
 	idParam := c.Params("id")
 	id, err := uuid.Parse(idParam)
@@ -136,6 +178,19 @@ func (h *TaskHandler) getTaskByID(c *fiber.Ctx) error {
 	return c.JSON(amTask)
 }
 
+// GetTasks retrieves tasks with optional filtering and pagination
+// @Summary Get tasks
+// @Description Retrieve tasks with optional filtering by IDs and statuses, with pagination support
+// @Tags tasks
+// @Produce json
+// @Param ids query string false "Comma-separated task IDs"
+// @Param statuses query string false "Comma-separated task statuses (PENDING, IN_PROGRESS, COMPLETED)"
+// @Param page query int false "Page number (default: 1)"
+// @Param pageSize query int false "Number of items per page (default: 10)"
+// @Success 200 {object} AMTasksResponse
+// @Failure 400 {object} AMErrorResponse
+// @Failure 500 {object} AMErrorResponse
+// @Router /task [get]
 func (h *TaskHandler) getTasks(c *fiber.Ctx) error {
 	idsParam := c.Query("ids")
 	statusesParam := c.Query("statuses")

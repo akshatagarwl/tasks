@@ -1,0 +1,251 @@
+basePath: /
+definitions:
+  api.AMCreateTaskRequest:
+    properties:
+      description:
+        example: Task description
+        type: string
+      status:
+        example: PENDING
+        type: string
+      title:
+        example: New task title
+        type: string
+    required:
+    - title
+    type: object
+  api.AMErrorResponse:
+    properties:
+      message:
+        example: Error message
+        type: string
+    type: object
+  api.AMPaginationMeta:
+    properties:
+      page:
+        example: 1
+        type: integer
+      page_size:
+        example: 10
+        type: integer
+      total_count:
+        example: 100
+        type: integer
+      total_pages:
+        example: 10
+        type: integer
+    type: object
+  api.AMTaskResponse:
+    properties:
+      created_at:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      description:
+        example: Write comprehensive API documentation
+        type: string
+      id:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        type: string
+      last_modified_at:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      status:
+        example: PENDING
+        type: string
+      title:
+        example: Complete project documentation
+        type: string
+    type: object
+  api.AMTasksResponse:
+    properties:
+      meta:
+        $ref: '#/definitions/api.AMPaginationMeta'
+      tasks:
+        items:
+          $ref: '#/definitions/api.AMTaskResponse'
+        type: array
+    type: object
+  api.AMUpdateTaskRequest:
+    properties:
+      description:
+        example: Updated task description
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/service.SMTaskStatus'
+        example: IN_PROGRESS
+      title:
+        example: Updated task title
+        type: string
+    type: object
+  service.SMTaskStatus:
+    enum:
+    - PENDING
+    - IN_PROGRESS
+    - COMPLETED
+    type: string
+    x-enum-varnames:
+    - SMTaskStatusPending
+    - SMTaskStatusInProgress
+    - SMTaskStatusCompleted
+host: localhost:8080
+info:
+  contact:
+    email: support@example.com
+    name: API Support
+  description: A simple task management API with CRUD operations
+  title: Task Management API
+  version: "1.0"
+paths:
+  /task:
+    get:
+      description: Retrieve tasks with optional filtering by IDs and statuses, with
+        pagination support
+      parameters:
+      - description: Comma-separated task IDs
+        in: query
+        name: ids
+        type: string
+      - description: Comma-separated task statuses (PENDING, IN_PROGRESS, COMPLETED)
+        in: query
+        name: statuses
+        type: string
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Number of items per page (default: 10)'
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.AMTasksResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.AMErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.AMErrorResponse'
+      summary: Get tasks
+      tags:
+      - tasks
+    post:
+      consumes:
+      - application/json
+      description: Create a new task with title, description, and optional status
+      parameters:
+      - description: Task to create
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/api.AMCreateTaskRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/api.AMTaskResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.AMErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.AMErrorResponse'
+      summary: Create a new task
+      tags:
+      - tasks
+  /task/{id}:
+    delete:
+      description: Delete a task by ID
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.AMErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.AMErrorResponse'
+      summary: Delete a task
+      tags:
+      - tasks
+    get:
+      description: Retrieve a single task by its ID
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.AMTaskResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.AMErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.AMErrorResponse'
+      summary: Get a task by ID
+      tags:
+      - tasks
+    put:
+      consumes:
+      - application/json
+      description: Update an existing task by ID
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Task update data
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/api.AMUpdateTaskRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.AMTaskResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.AMErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.AMErrorResponse'
+      summary: Update a task
+      tags:
+      - tasks
+swagger: "2.0"

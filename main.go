@@ -10,8 +10,18 @@ import (
 	"github.com/akshatagarwl/tasks/service"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/swagger"
+
+	_ "github.com/akshatagarwl/tasks/docs"
 )
 
+// @title Task Management API
+// @version 1.0
+// @description A simple task management API with CRUD operations
+// @contact.name API Support
+// @contact.email support@example.com
+// @host localhost:8080
+// @BasePath /
 func main() {
 	ctx := context.Background()
 
@@ -32,6 +42,9 @@ func main() {
 	handler := api.NewTaskHandler(svc)
 
 	app := fiber.New()
+
+	app.Get("/swagger/*", swagger.HandlerDefault)
+
 	handler.Register(app)
 
 	addr := ":" + cfg.ServerPort
