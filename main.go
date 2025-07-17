@@ -50,7 +50,6 @@ func main() {
 		AllowHeaders: "*",
 	}))
 
-	app.Get("/", swagger.HandlerDefault)
 	app.Get("/swagger/*", swagger.HandlerDefault)
 
 	handler.Register(app)
