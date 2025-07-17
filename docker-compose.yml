@@ -5,6 +5,8 @@ networks:
 volumes:
   db-data:
     driver: local
+  atlas:
+    driver: local
 
 services:
   db:
@@ -40,16 +42,26 @@ services:
     networks:
       - tasks-net
 
-  migrate:
+  atlas-login:
+    image: arigaio/atlas:latest
+    command: login --token ${ATLAS_TOKEN}
+    volumes:
+      - atlas:/root/.atlas
+
+  atlas-migrate:
     build:
       context: .
       dockerfile: atlas.Dockerfile
-    command: schema apply -u "postgres://postgres:postgres@db:5432/tasks?sslmode=disable" --dev-url "postgres://postgres:postgres@dev-db:5432/postgres?sslmode=disable" --to "file://schema.sql" --auto-approve
+    command: schema apply -u 'postgres://postgres:postgres@db:5432/tasks?sslmode=disable' --dev-url 'postgres://postgres:postgres@dev-db:5432/postgres?sslmode=disable' --to 'file://schema.sql' --auto-approve
+    volumes:
+      - atlas:/root/.atlas
     depends_on:
       db:
         condition: service_healthy
       dev-db:
         condition: service_healthy
+      atlas-login:
+        condition: service_completed_successfully
     networks:
       - tasks-net
 
@@ -66,7 +78,7 @@ services:
       - DB_PASSWORD=postgres
       - DB_NAME=tasks
     depends_on:
-      migrate:
+      atlas-migrate:
         condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/readyz"]
