@@ -45,9 +45,8 @@ func main() {
 	app := fiber.New()
 
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "https://tasks-api.akshat.dev,http://localhost:8080",
-		AllowMethods: "GET,POST,PUT,DELETE,OPTIONS",
-		AllowHeaders: "*",
+		AllowOrigins: "https://tasks-api.akshat.dev, http://localhost:8080",
+		AllowHeaders: "Origin, Content-Type, Accept",
 	}))
 
 	app.Get("/swagger/*", swagger.HandlerDefault)
