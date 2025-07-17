@@ -8,6 +8,7 @@ import (
 	"github.com/akshatagarwl/tasks/service"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/healthcheck"
 	"github.com/google/uuid"
 )
 
@@ -20,6 +21,7 @@ func NewTaskHandler(svc service.TaskService) *TaskHandler {
 }
 
 func (h *TaskHandler) Register(app *fiber.App) {
+	app.Use(healthcheck.New())
 	app.Get("/tasks", h.getTasks)
 	app.Post("/task", h.createTask)
 	app.Put("/task/:id", h.updateTask)
