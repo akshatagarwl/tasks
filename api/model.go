@@ -25,3 +25,15 @@ type AMCreateTaskRequest struct {
 	Description *string `json:"description,omitempty"`
 	Status      *string `json:"status,omitempty"`
 }
+
+type AMPaginationMeta struct {
+	Page       int   `json:"page"`
+	PageSize   int   `json:"page_size"`
+	TotalCount int64 `json:"total_count"`
+	TotalPages int   `json:"total_pages"`
+}
+
+type AMTasksResponse struct {
+	Tasks []AMTaskResponse `json:"tasks"`
+	Meta  AMPaginationMeta `json:"meta"`
+}

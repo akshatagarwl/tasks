@@ -94,6 +94,25 @@ func (q *Queries) GetTasksFiltered(ctx context.Context, arg GetTasksFilteredPara
 	return items, nil
 }
 
+const getTasksFilteredCount = `-- name: GetTasksFilteredCount :one
+SELECT COUNT(*)
+FROM tasks
+WHERE (cardinality(COALESCE($1::uuid[], '{}')) = 0 OR id = ANY($1::uuid[]))
+  AND (cardinality(COALESCE($2::task_status[], '{}')) = 0 OR status = ANY($2::task_status[]))
+`
+
+type GetTasksFilteredCountParams struct {
+	Column1 []uuid.UUID
+	Column2 []string
+}
+
+func (q *Queries) GetTasksFilteredCount(ctx context.Context, arg GetTasksFilteredCountParams) (int64, error) {
+	row := q.db.QueryRow(ctx, getTasksFilteredCount, arg.Column1, arg.Column2)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const updateTask = `-- name: UpdateTask :one
 UPDATE tasks
 SET

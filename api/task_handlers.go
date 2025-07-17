@@ -22,7 +22,7 @@ func NewTaskHandler(svc service.TaskService) *TaskHandler {
 
 func (h *TaskHandler) Register(app *fiber.App) {
 	app.Use(healthcheck.New())
-	app.Get("/tasks", h.getTasks)
+	app.Get("/task", h.getTasks)
 	app.Post("/task", h.createTask)
 	app.Put("/task/:id", h.updateTask)
 	app.Delete("/task/:id", h.deleteTask)
@@ -137,13 +137,13 @@ func (h *TaskHandler) getTasks(c *fiber.Ctx) error {
 	}
 
 	ctx := context.Background()
-	smTasks, err := h.svc.GetTasks(ctx, ids, statuses, page, pageSize)
+	result, err := h.svc.GetTasksWithCount(ctx, ids, statuses, page, pageSize)
 	if err != nil {
 		return fiber.NewError(http.StatusInternalServerError, err.Error())
 	}
 
-	amTasks := make([]AMTaskResponse, 0, len(smTasks))
-	for _, t := range smTasks {
+	amTasks := make([]AMTaskResponse, 0, len(result.Tasks))
+	for _, t := range result.Tasks {
 		amTasks = append(amTasks, AMTaskResponse{
 			ID:          t.ID.String(),
 			Title:       t.Title,
@@ -153,5 +153,17 @@ func (h *TaskHandler) getTasks(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(amTasks)
+	totalPages := int((result.TotalCount + int64(pageSize) - 1) / int64(pageSize))
+
+	response := AMTasksResponse{
+		Tasks: amTasks,
+		Meta: AMPaginationMeta{
+			Page:       page,
+			PageSize:   pageSize,
+			TotalCount: result.TotalCount,
+			TotalPages: totalPages,
+		},
+	}
+
+	return c.JSON(response)
 }

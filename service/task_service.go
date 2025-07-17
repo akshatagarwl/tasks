@@ -9,8 +9,14 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type SMTasksWithCount struct {
+	Tasks      []*SMTask
+	TotalCount int64
+}
+
 type TaskService interface {
 	GetTasks(ctx context.Context, ids []uuid.UUID, statuses []SMTaskStatus, page, pageSize int) ([]*SMTask, error)
+	GetTasksWithCount(ctx context.Context, ids []uuid.UUID, statuses []SMTaskStatus, page, pageSize int) (*SMTasksWithCount, error)
 	CreateTask(ctx context.Context, title string, description *string, status *SMTaskStatus) (*SMTask, error)
 	UpdateTask(ctx context.Context, id uuid.UUID, title *string, description *string, status *SMTaskStatus) (*SMTask, error)
 	DeleteTask(ctx context.Context, id uuid.UUID) error
@@ -58,6 +64,54 @@ func (s *taskService) GetTasks(ctx context.Context, ids []uuid.UUID, statuses []
 		tasks = append(tasks, t)
 	}
 	return tasks, nil
+}
+
+func (s *taskService) GetTasksWithCount(ctx context.Context, ids []uuid.UUID, statuses []SMTaskStatus, page, pageSize int) (*SMTasksWithCount, error) {
+	var stringStatuses []string
+	for _, st := range statuses {
+		stringStatuses = append(stringStatuses, string(st))
+	}
+
+	offset := (page - 1) * pageSize
+
+	dmTasks, err := s.repo.Queries.GetTasksFiltered(ctx, db.GetTasksFilteredParams{
+		Column1: ids,
+		Column2: stringStatuses,
+		Limit:   int32(pageSize),
+		Offset:  int32(offset),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	totalCount, err := s.repo.Queries.GetTasksFilteredCount(ctx, db.GetTasksFilteredCountParams{
+		Column1: ids,
+		Column2: stringStatuses,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	tasks := make([]*SMTask, 0, len(dmTasks))
+	for _, d := range dmTasks {
+		var descPtr *string
+		if d.Description.Valid {
+			descPtr = &d.Description.String
+		}
+		t := &SMTask{
+			ID:          d.ID,
+			Title:       d.Title,
+			Description: descPtr,
+			Status:      SMTaskStatus(d.Status),
+			CreatedAt:   d.CreatedAt.Time,
+		}
+		tasks = append(tasks, t)
+	}
+
+	return &SMTasksWithCount{
+		Tasks:      tasks,
+		TotalCount: totalCount,
+	}, nil
 }
 
 func (s *taskService) CreateTask(ctx context.Context, title string, description *string, status *SMTaskStatus) (*SMTask, error) {

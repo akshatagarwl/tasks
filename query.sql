@@ -23,3 +23,9 @@ RETURNING *;
 -- name: DeleteTask :exec
 DELETE FROM tasks
 WHERE id = $1;
+
+-- name: GetTasksFilteredCount :one
+SELECT COUNT(*)
+FROM tasks
+WHERE (cardinality(COALESCE($1::uuid[], '{}')) = 0 OR id = ANY($1::uuid[]))
+  AND (cardinality(COALESCE($2::task_status[], '{}')) = 0 OR status = ANY($2::task_status[]));
