@@ -20,6 +20,11 @@ SET
 WHERE id = sqlc.arg('id')
 RETURNING *;
 
+-- name: GetTaskByID :one
+SELECT id, title, description, status, created_at
+FROM tasks
+WHERE id = $1;
+
 -- name: DeleteTask :exec
 DELETE FROM tasks
 WHERE id = $1;

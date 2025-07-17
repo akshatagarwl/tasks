@@ -23,6 +23,7 @@ func NewTaskHandler(svc service.TaskService) *TaskHandler {
 func (h *TaskHandler) Register(app *fiber.App) {
 	app.Use(healthcheck.New())
 	app.Get("/task", h.getTasks)
+	app.Get("/task/:id", h.getTaskByID)
 	app.Post("/task", h.createTask)
 	app.Put("/task/:id", h.updateTask)
 	app.Delete("/task/:id", h.deleteTask)
@@ -106,6 +107,30 @@ func (h *TaskHandler) deleteTask(c *fiber.Ctx) error {
 	}
 
 	return c.SendStatus(http.StatusNoContent)
+}
+
+func (h *TaskHandler) getTaskByID(c *fiber.Ctx) error {
+	idParam := c.Params("id")
+	id, err := uuid.Parse(idParam)
+	if err != nil {
+		return fiber.NewError(http.StatusBadRequest, "Invalid UUID format")
+	}
+
+	ctx := context.Background()
+	smTask, err := h.svc.GetTaskByID(ctx, id)
+	if err != nil {
+		return fiber.NewError(http.StatusInternalServerError, err.Error())
+	}
+
+	amTask := AMTaskResponse{
+		ID:          smTask.ID.String(),
+		Title:       smTask.Title,
+		Description: smTask.Description,
+		Status:      string(smTask.Status),
+		CreatedAt:   smTask.CreatedAt,
+	}
+
+	return c.JSON(amTask)
 }
 
 func (h *TaskHandler) getTasks(c *fiber.Ctx) error {

@@ -17,6 +17,7 @@ type SMTasksWithCount struct {
 type TaskService interface {
 	GetTasks(ctx context.Context, ids []uuid.UUID, statuses []SMTaskStatus, page, pageSize int) ([]*SMTask, error)
 	GetTasksWithCount(ctx context.Context, ids []uuid.UUID, statuses []SMTaskStatus, page, pageSize int) (*SMTasksWithCount, error)
+	GetTaskByID(ctx context.Context, id uuid.UUID) (*SMTask, error)
 	CreateTask(ctx context.Context, title string, description *string, status *SMTaskStatus) (*SMTask, error)
 	UpdateTask(ctx context.Context, id uuid.UUID, title *string, description *string, status *SMTaskStatus) (*SMTask, error)
 	DeleteTask(ctx context.Context, id uuid.UUID) error
@@ -168,6 +169,28 @@ func (s *taskService) UpdateTask(ctx context.Context, id uuid.UUID, title *strin
 	}
 
 	dmTask, err := s.repo.Queries.UpdateTask(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+
+	var descPtr *string
+	if dmTask.Description.Valid {
+		descPtr = &dmTask.Description.String
+	}
+
+	task := &SMTask{
+		ID:          dmTask.ID,
+		Title:       dmTask.Title,
+		Description: descPtr,
+		Status:      SMTaskStatus(dmTask.Status),
+		CreatedAt:   dmTask.CreatedAt.Time,
+	}
+
+	return task, nil
+}
+
+func (s *taskService) GetTaskByID(ctx context.Context, id uuid.UUID) (*SMTask, error) {
+	dmTask, err := s.repo.Queries.GetTaskByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}

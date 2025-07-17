@@ -47,6 +47,25 @@ func (q *Queries) DeleteTask(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
+const getTaskByID = `-- name: GetTaskByID :one
+SELECT id, title, description, status, created_at
+FROM tasks
+WHERE id = $1
+`
+
+func (q *Queries) GetTaskByID(ctx context.Context, id uuid.UUID) (DMTask, error) {
+	row := q.db.QueryRow(ctx, getTaskByID, id)
+	var i DMTask
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Description,
+		&i.Status,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const getTasksFiltered = `-- name: GetTasksFiltered :many
 SELECT id, title, description, status, created_at
 FROM tasks
