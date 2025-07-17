@@ -56,11 +56,12 @@ func (s *taskService) GetTasks(ctx context.Context, ids []uuid.UUID, statuses []
 			descPtr = &d.Description.String
 		}
 		t := &SMTask{
-			ID:          d.ID,
-			Title:       d.Title,
-			Description: descPtr,
-			Status:      SMTaskStatus(d.Status),
-			CreatedAt:   d.CreatedAt.Time,
+			ID:             d.ID,
+			Title:          d.Title,
+			Description:    descPtr,
+			Status:         SMTaskStatus(d.Status),
+			CreatedAt:      d.CreatedAt.Time,
+			LastModifiedAt: d.LastModifiedAt.Time,
 		}
 		tasks = append(tasks, t)
 	}
@@ -100,11 +101,12 @@ func (s *taskService) GetTasksWithCount(ctx context.Context, ids []uuid.UUID, st
 			descPtr = &d.Description.String
 		}
 		t := &SMTask{
-			ID:          d.ID,
-			Title:       d.Title,
-			Description: descPtr,
-			Status:      SMTaskStatus(d.Status),
-			CreatedAt:   d.CreatedAt.Time,
+			ID:             d.ID,
+			Title:          d.Title,
+			Description:    descPtr,
+			Status:         SMTaskStatus(d.Status),
+			CreatedAt:      d.CreatedAt.Time,
+			LastModifiedAt: d.LastModifiedAt.Time,
 		}
 		tasks = append(tasks, t)
 	}
@@ -138,11 +140,12 @@ func (s *taskService) CreateTask(ctx context.Context, title string, description 
 	}
 
 	task := &SMTask{
-		ID:          dmTask.ID,
-		Title:       dmTask.Title,
-		Description: &dmTask.Description.String,
-		Status:      SMTaskStatus(dmTask.Status),
-		CreatedAt:   dmTask.CreatedAt.Time,
+		ID:             dmTask.ID,
+		Title:          dmTask.Title,
+		Description:    &dmTask.Description.String,
+		Status:         SMTaskStatus(dmTask.Status),
+		CreatedAt:      dmTask.CreatedAt.Time,
+		LastModifiedAt: dmTask.LastModifiedAt.Time,
 	}
 	return task, nil
 }
@@ -179,11 +182,12 @@ func (s *taskService) UpdateTask(ctx context.Context, id uuid.UUID, title *strin
 	}
 
 	task := &SMTask{
-		ID:          dmTask.ID,
-		Title:       dmTask.Title,
-		Description: descPtr,
-		Status:      SMTaskStatus(dmTask.Status),
-		CreatedAt:   dmTask.CreatedAt.Time,
+		ID:             dmTask.ID,
+		Title:          dmTask.Title,
+		Description:    descPtr,
+		Status:         SMTaskStatus(dmTask.Status),
+		CreatedAt:      dmTask.CreatedAt.Time,
+		LastModifiedAt: dmTask.LastModifiedAt.Time,
 	}
 
 	return task, nil
@@ -201,11 +205,12 @@ func (s *taskService) GetTaskByID(ctx context.Context, id uuid.UUID) (*SMTask, e
 	}
 
 	task := &SMTask{
-		ID:          dmTask.ID,
-		Title:       dmTask.Title,
-		Description: descPtr,
-		Status:      SMTaskStatus(dmTask.Status),
-		CreatedAt:   dmTask.CreatedAt.Time,
+		ID:             dmTask.ID,
+		Title:          dmTask.Title,
+		Description:    descPtr,
+		Status:         SMTaskStatus(dmTask.Status),
+		CreatedAt:      dmTask.CreatedAt.Time,
+		LastModifiedAt: dmTask.LastModifiedAt.Time,
 	}
 
 	return task, nil

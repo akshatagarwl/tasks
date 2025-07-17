@@ -7,11 +7,12 @@ import (
 )
 
 type AMTaskResponse struct {
-	ID          string    `json:"id"`
-	Title       string    `json:"title"`
-	Description *string   `json:"description,omitempty"`
-	Status      string    `json:"status"`
-	CreatedAt   time.Time `json:"created_at"`
+	ID             string    `json:"id"`
+	Title          string    `json:"title"`
+	Description    *string   `json:"description,omitempty"`
+	Status         string    `json:"status"`
+	CreatedAt      time.Time `json:"created_at"`
+	LastModifiedAt time.Time `json:"last_modified_at"`
 }
 
 type AMUpdateTaskRequest struct {
@@ -25,6 +26,7 @@ type AMCreateTaskRequest struct {
 	Description *string `json:"description,omitempty"`
 	Status      *string `json:"status,omitempty"`
 }
+
 
 type AMPaginationMeta struct {
 	Page       int   `json:"page"`

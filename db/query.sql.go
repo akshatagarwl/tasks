@@ -15,7 +15,7 @@ import (
 const createTask = `-- name: CreateTask :one
 INSERT INTO tasks (title, description, status)
 VALUES ($1, $2, $3)
-RETURNING id, title, description, status, created_at
+RETURNING id, title, description, status, created_at, last_modified_at
 `
 
 type CreateTaskParams struct {
@@ -33,6 +33,7 @@ func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (DMTask,
 		&i.Description,
 		&i.Status,
 		&i.CreatedAt,
+		&i.LastModifiedAt,
 	)
 	return i, err
 }
@@ -48,7 +49,7 @@ func (q *Queries) DeleteTask(ctx context.Context, id uuid.UUID) error {
 }
 
 const getTaskByID = `-- name: GetTaskByID :one
-SELECT id, title, description, status, created_at
+SELECT id, title, description, status, created_at, last_modified_at
 FROM tasks
 WHERE id = $1
 `
@@ -62,12 +63,13 @@ func (q *Queries) GetTaskByID(ctx context.Context, id uuid.UUID) (DMTask, error)
 		&i.Description,
 		&i.Status,
 		&i.CreatedAt,
+		&i.LastModifiedAt,
 	)
 	return i, err
 }
 
 const getTasksFiltered = `-- name: GetTasksFiltered :many
-SELECT id, title, description, status, created_at
+SELECT id, title, description, status, created_at, last_modified_at
 FROM tasks
 WHERE (cardinality(COALESCE($1::uuid[], '{}')) = 0 OR id = ANY($1::uuid[]))
   AND (cardinality(COALESCE($2::task_status[], '{}')) = 0 OR status = ANY($2::task_status[]))
@@ -102,6 +104,7 @@ func (q *Queries) GetTasksFiltered(ctx context.Context, arg GetTasksFilteredPara
 			&i.Description,
 			&i.Status,
 			&i.CreatedAt,
+			&i.LastModifiedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -139,7 +142,7 @@ SET
   description = COALESCE($2, description),
   status = COALESCE($3, status)
 WHERE id = $4
-RETURNING id, title, description, status, created_at
+RETURNING id, title, description, status, created_at, last_modified_at
 `
 
 type UpdateTaskParams struct {
@@ -163,6 +166,7 @@ func (q *Queries) UpdateTask(ctx context.Context, arg UpdateTaskParams) (DMTask,
 		&i.Description,
 		&i.Status,
 		&i.CreatedAt,
+		&i.LastModifiedAt,
 	)
 	return i, err
 }

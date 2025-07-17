@@ -56,9 +56,10 @@ func (ns NullDMTaskStatus) Value() (driver.Value, error) {
 }
 
 type DMTask struct {
-	ID          uuid.UUID
-	Title       string
-	Description pgtype.Text
-	Status      string
-	CreatedAt   pgtype.Timestamptz
+	ID             uuid.UUID
+	Title          string
+	Description    pgtype.Text
+	Status         string
+	CreatedAt      pgtype.Timestamptz
+	LastModifiedAt pgtype.Timestamptz
 }

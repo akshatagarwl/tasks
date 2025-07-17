@@ -15,11 +15,12 @@ const (
 )
 
 type SMTask struct {
-	ID          uuid.UUID
-	Title       string
-	Description *string
-	Status      SMTaskStatus
-	CreatedAt   time.Time
+	ID             uuid.UUID
+	Title          string
+	Description    *string
+	Status         SMTaskStatus
+	CreatedAt      time.Time
+	LastModifiedAt time.Time
 }
 
 func (s SMTaskStatus) IsValid() bool {

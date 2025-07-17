@@ -55,11 +55,12 @@ func (h *TaskHandler) createTask(c *fiber.Ctx) error {
 	}
 
 	amTask := AMTaskResponse{
-		ID:          smTask.ID.String(),
-		Title:       smTask.Title,
-		Description: smTask.Description,
-		Status:      string(smTask.Status),
-		CreatedAt:   smTask.CreatedAt,
+		ID:             smTask.ID.String(),
+		Title:          smTask.Title,
+		Description:    smTask.Description,
+		Status:         string(smTask.Status),
+		CreatedAt:      smTask.CreatedAt,
+		LastModifiedAt: smTask.LastModifiedAt,
 	}
 
 	return c.Status(http.StatusCreated).JSON(amTask)
@@ -87,11 +88,12 @@ func (h *TaskHandler) updateTask(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(&AMTaskResponse{
-		ID:          task.ID.String(),
-		Title:       task.Title,
-		Description: task.Description,
-		Status:      string(task.Status),
-		CreatedAt:   task.CreatedAt,
+		ID:             task.ID.String(),
+		Title:          task.Title,
+		Description:    task.Description,
+		Status:         string(task.Status),
+		CreatedAt:      task.CreatedAt,
+		LastModifiedAt: task.LastModifiedAt,
 	})
 }
 
@@ -123,11 +125,12 @@ func (h *TaskHandler) getTaskByID(c *fiber.Ctx) error {
 	}
 
 	amTask := AMTaskResponse{
-		ID:          smTask.ID.String(),
-		Title:       smTask.Title,
-		Description: smTask.Description,
-		Status:      string(smTask.Status),
-		CreatedAt:   smTask.CreatedAt,
+		ID:             smTask.ID.String(),
+		Title:          smTask.Title,
+		Description:    smTask.Description,
+		Status:         string(smTask.Status),
+		CreatedAt:      smTask.CreatedAt,
+		LastModifiedAt: smTask.LastModifiedAt,
 	}
 
 	return c.JSON(amTask)
@@ -170,11 +173,12 @@ func (h *TaskHandler) getTasks(c *fiber.Ctx) error {
 	amTasks := make([]AMTaskResponse, 0, len(result.Tasks))
 	for _, t := range result.Tasks {
 		amTasks = append(amTasks, AMTaskResponse{
-			ID:          t.ID.String(),
-			Title:       t.Title,
-			Description: t.Description,
-			Status:      string(t.Status),
-			CreatedAt:   t.CreatedAt,
+			ID:             t.ID.String(),
+			Title:          t.Title,
+			Description:    t.Description,
+			Status:         string(t.Status),
+			CreatedAt:      t.CreatedAt,
+			LastModifiedAt: t.LastModifiedAt,
 		})
 	}
 

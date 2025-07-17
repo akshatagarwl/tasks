@@ -1,10 +1,10 @@
 -- name: CreateTask :one
 INSERT INTO tasks (title, description, status)
 VALUES ($1, $2, $3)
-RETURNING id, title, description, status, created_at;
+RETURNING id, title, description, status, created_at, last_modified_at;
 
 -- name: GetTasksFiltered :many
-SELECT id, title, description, status, created_at
+SELECT id, title, description, status, created_at, last_modified_at
 FROM tasks
 WHERE (cardinality(COALESCE($1::uuid[], '{}')) = 0 OR id = ANY($1::uuid[]))
   AND (cardinality(COALESCE($2::task_status[], '{}')) = 0 OR status = ANY($2::task_status[]))
@@ -21,7 +21,7 @@ WHERE id = sqlc.arg('id')
 RETURNING *;
 
 -- name: GetTaskByID :one
-SELECT id, title, description, status, created_at
+SELECT id, title, description, status, created_at, last_modified_at
 FROM tasks
 WHERE id = $1;
 
