@@ -1,5 +1,13 @@
 # Tasks API
 
+Production: https://tasks-api.akshat.dev
+API Docs: https://tasks-api.akshat.dev/docs/swagger/index.html
+Docker Images: https://hub.docker.com/r/akshataga/tasks
+
+## Deployment
+- Koyeb for API
+- Neon for DB
+
 ## Stack
 - Go + Fiber
 - Postgres
@@ -27,6 +35,9 @@ DB_PASSWORD=mysecretpassword DB_NAME=tdb go run main.go
 ```
 
 ## Docker Compose
+
+You will need an Atlas API token to run this. To create a token, see [Atlas docs](https://atlasgo.io/cloud/bots).
+
 ```bash
 ATLAS_TOKEN=<token> docker compose up --build
 ```
@@ -34,5 +45,3 @@ ATLAS_TOKEN=<token> docker compose up --build
 ## Docs
 - Swagger UI: `/swagger`
 - ER diagram: https://gh.atlasgo.cloud/explore/bc8dd5b0
-
-Production: https://tasks-api.akshat.dev
