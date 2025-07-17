@@ -10,7 +10,7 @@ type AMTaskResponse struct {
 	ID             string    `json:"id" example:"123e4567-e89b-12d3-a456-426614174000"`
 	Title          string    `json:"title" example:"Complete project documentation"`
 	Description    *string   `json:"description,omitempty" example:"Write comprehensive API documentation"`
-	Status         string    `json:"status" example:"PENDING"`
+	Status         string    `json:"status" example:"TODO"`
 	CreatedAt      time.Time `json:"created_at" example:"2023-01-01T00:00:00Z"`
 	LastModifiedAt time.Time `json:"last_modified_at" example:"2023-01-01T00:00:00Z"`
 }
@@ -24,9 +24,8 @@ type AMUpdateTaskRequest struct {
 type AMCreateTaskRequest struct {
 	Title       string  `json:"title" validate:"required" example:"New task title"`
 	Description *string `json:"description,omitempty" example:"Task description"`
-	Status      *string `json:"status,omitempty" example:"PENDING"`
+	Status      *string `json:"status,omitempty" example:"TODO"`
 }
-
 
 type AMPaginationMeta struct {
 	Page       int   `json:"page" example:"1"`

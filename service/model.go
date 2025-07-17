@@ -9,7 +9,7 @@ import (
 type SMTaskStatus string
 
 const (
-	SMTaskStatusPending    SMTaskStatus = "PENDING"
+	SMTaskStatusTodo       SMTaskStatus = "TODO"
 	SMTaskStatusInProgress SMTaskStatus = "IN_PROGRESS"
 	SMTaskStatusCompleted  SMTaskStatus = "COMPLETED"
 )
@@ -25,7 +25,7 @@ type SMTask struct {
 
 func (s SMTaskStatus) IsValid() bool {
 	switch s {
-	case SMTaskStatusPending, SMTaskStatusInProgress, SMTaskStatusCompleted:
+	case SMTaskStatusTodo, SMTaskStatusInProgress, SMTaskStatusCompleted:
 		return true
 	default:
 		return false

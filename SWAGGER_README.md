@@ -22,7 +22,7 @@ This project now includes comprehensive Swagger/OpenAPI documentation for the Ta
 - `GET /livez` - Health check endpoint
 
 ## Task Status Values
-- `PENDING` - Task is pending
+- `TODO` - Task is todo
 - `IN_PROGRESS` - Task is in progress
 - `COMPLETED` - Task is completed
 

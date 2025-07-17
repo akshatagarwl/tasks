@@ -15,7 +15,7 @@ import (
 type DMTaskStatus string
 
 const (
-	TaskStatusPENDING    DMTaskStatus = "PENDING"
+	TaskStatusTODO       DMTaskStatus = "TODO"
 	TaskStatusINPROGRESS DMTaskStatus = "IN_PROGRESS"
 	TaskStatusCOMPLETED  DMTaskStatus = "COMPLETED"
 )

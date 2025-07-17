@@ -37,7 +37,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Comma-separated task statuses (PENDING, IN_PROGRESS, COMPLETED)",
+                        "description": "Comma-separated task statuses (TODO, IN_PROGRESS, COMPLETED)",
                         "name": "statuses",
                         "in": "query"
                     },
@@ -259,7 +259,7 @@ const docTemplate = `{
                 },
                 "status": {
                     "type": "string",
-                    "example": "PENDING"
+                    "example": "TODO"
                 },
                 "title": {
                     "type": "string",
@@ -318,7 +318,7 @@ const docTemplate = `{
                 },
                 "status": {
                     "type": "string",
-                    "example": "PENDING"
+                    "example": "TODO"
                 },
                 "title": {
                     "type": "string",
@@ -364,12 +364,12 @@ const docTemplate = `{
         "service.SMTaskStatus": {
             "type": "string",
             "enum": [
-                "PENDING",
+                "TODO",
                 "IN_PROGRESS",
                 "COMPLETED"
             ],
             "x-enum-varnames": [
-                "SMTaskStatusPending",
+                "SMTaskStatusTodo",
                 "SMTaskStatusInProgress",
                 "SMTaskStatusCompleted"
             ]

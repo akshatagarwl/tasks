@@ -6,7 +6,7 @@ definitions:
         example: Task description
         type: string
       status:
-        example: PENDING
+        example: TODO
         type: string
       title:
         example: New task title
@@ -50,7 +50,7 @@ definitions:
         example: "2023-01-01T00:00:00Z"
         type: string
       status:
-        example: PENDING
+        example: TODO
         type: string
       title:
         example: Complete project documentation
@@ -80,12 +80,12 @@ definitions:
     type: object
   service.SMTaskStatus:
     enum:
-    - PENDING
+    - TODO
     - IN_PROGRESS
     - COMPLETED
     type: string
     x-enum-varnames:
-    - SMTaskStatusPending
+    - SMTaskStatusTodo
     - SMTaskStatusInProgress
     - SMTaskStatusCompleted
 host: localhost:8080
@@ -106,7 +106,7 @@ paths:
         in: query
         name: ids
         type: string
-      - description: Comma-separated task statuses (PENDING, IN_PROGRESS, COMPLETED)
+      - description: Comma-separated task statuses (TODO, IN_PROGRESS, COMPLETED)
         in: query
         name: statuses
         type: string

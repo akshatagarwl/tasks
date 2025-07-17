@@ -184,7 +184,7 @@ func (h *TaskHandler) getTaskByID(c *fiber.Ctx) error {
 // @Tags tasks
 // @Produce json
 // @Param ids query string false "Comma-separated task IDs"
-// @Param statuses query string false "Comma-separated task statuses (PENDING, IN_PROGRESS, COMPLETED)"
+// @Param statuses query string false "Comma-separated task statuses (TODO, IN_PROGRESS, COMPLETED)"
 // @Param page query int false "Page number (default: 1)"
 // @Param pageSize query int false "Number of items per page (default: 10)"
 // @Success 200 {object} AMTasksResponse

@@ -118,7 +118,7 @@ func (s *taskService) GetTasksWithCount(ctx context.Context, ids []uuid.UUID, st
 }
 
 func (s *taskService) CreateTask(ctx context.Context, title string, description *string, status *SMTaskStatus) (*SMTask, error) {
-	st := SMTaskStatusPending
+	st := SMTaskStatusTodo
 	if status != nil {
 		st = *status
 	}
